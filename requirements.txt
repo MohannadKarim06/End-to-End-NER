@@ -3,3 +3,5 @@ fastapi
 uvicorn
 pydantic
 streamlit
+sentry-sdk
+prometheus-fastapi-instrumentator
