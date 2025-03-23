@@ -1,6 +1,13 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from app.model import predict_entities
+from app.model  import predict_entities
+
+import sys
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+sys.path.append(BASE_DIR)
 
 app = FastAPI()
 

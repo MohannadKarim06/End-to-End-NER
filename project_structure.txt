@@ -1,0 +1,51 @@
+Folder PATH listing
+Volume serial number is 161F-D45D
+C:.
+|   .gitignore
+|   Dockerfile
+|   LICENSE
+|   project_structure.txt
+|   README.md
+|   requirements.txt
+|   
++---.github
+|   \---workflows
+|           blank.yml
+|           
++---app
+|       config.py
+|       main.py
+|       model.py
+|       schemas.py
+|       
++---model
+|   |   Fine_tuned_NER_model.pkl
+|   |   
+|   \---spacy_model1
+|       |   config.cfg
+|       |   meta.json
+|       |   tokenizer
+|       |   
+|       +---ner
+|       |       cfg
+|       |       model
+|       |       moves
+|       |       
+|       +---tok2vec
+|       |       cfg
+|       |       model
+|       |       
+|       \---vocab
+|               key2row
+|               lookups.bin
+|               strings.json
+|               vectors
+|               vectors.cfg
+|               
++---tests
+|       test_api.py
+|       test_model.py
+|       
+\---ui
+        streamlit_ui.py
+        
