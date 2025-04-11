@@ -1,0 +1,195 @@
+Folder PATH listing for volume Windows 10
+Volume serial number is 84B5-3BBC
+C:.
+³   .gitignore
+³   Dockerfile
+code:
+FROM python:3.9-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+EXPOSE 8000
+
+CMD [ "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000" ]
+³   LICENSE
+³   README.md
+³   requirements.txt
+code:
+streamlit>=1.34.0
+requests>=2.31.0
+spacy>=3.9.0
+fastapi>=0.110.0
+pydantic>=2.7.1
+³   
+.github
+³   workflows
+³           ci.yml
+code:
+
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Tests
+        run: |
+          pytest tests/
+
+³           cd.yml
+code:
+name: CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Trigger Render Deployment
+        run: |
+          curl -X POST "https://api.render.com/deploy/srv-xxxxxxxxxxx?key=your-api-key"
+³           
+app
+³   ³   main.py
+code:from fastapi import FastAPI
+from pydantic import BaseModel
+from app.model import predict_entities
+
+app = FastAPI()
+
+class TextInput(BaseModel):
+    text: str
+
+@app.post("/predict")
+def predict(input_text: TextInput):
+    """
+    API endpoint for Named Entity Recognition.
+    Accepts a text input and returns detected entities.
+    """
+    response = predict_entities(input_text.text)
+    return response
+                                        
+³   ³   model.py
+code:
+import spacy
+
+model_path = "model\spacy_model1"
+
+NER_model = spacy.load(model_path)
+
+
+def predict_entities(text):
+    
+    doc = NER_model(text)  
+    
+    entities = [
+        {"text": ent.text, "start": ent.start_char, "end": ent.end_char, "label": ent.label_}
+        for ent in doc.ents
+    ]
+    return {"entities": entities}
+
+
+
+
+³   ³   
+model
+³   ³   Fine_tuned_NER_model.pkl
+³   ³   
+³   spacy_model1
+³       ³   config.cfg
+³       ³   meta.json
+³       ³   tokenizer
+³       ³   
+³       ner
+³       ³       cfg
+³       ³       model
+³       ³       moves
+³       ³       
+³       tok2vec
+³       ³       cfg
+³       ³       model
+³       ³       
+³       vocab
+³               key2row
+³               lookups.bin
+³               strings.json
+³               vectors
+³               vectors.cfg
+³               
+notebooks
+³       End_to_End_NER_project_get_and_pre_process_data.ipynb
+³       End_to_End_NER_project_train_NER_model.ipynb
+³       
+ui
+        streamlit_ui.py
+code:
+
+import streamlit as st
+import requests
+
+# API Endpoint
+API_URL = "api url"
+
+st.title("Named Entity Recognition (NER) API Demo")
+st.write("Enter a sentence and see the extracted named entities!")
+
+# Text input
+user_input = st.text_area("Enter text here:", "Apple is looking at buying U.K. startup for $1 billion.")
+
+if st.button("Analyze"):
+    if len(user_input) > 1000:
+        st.error("Text is too long, please make it less than 1000 charchters")
+    else:
+
+        if user_input.strip():
+            # Send request to API
+            response = requests.post(API_URL, json={"text": user_input})
+            if response.status_code == 200:
+                entities = response.json().get("entities", [])
+                if entities:
+                    st.subheader("Named Entities:")
+                    for entity in entities:
+                        st.write(f"**{entity['text']}** ({entity['label']})")
+                else:
+                    st.write("No named entities found.")
+            else:
+                st.error("Error: Could not connect to API.")
+        else:
+            st.warning("Please enter some text.")
+
+        
